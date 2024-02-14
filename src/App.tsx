@@ -52,15 +52,27 @@ function App() {
 
   const saveData = () => {
     setItem(StorageTypes.NAME, userName);
-    const updatedWorkdays = workdayData.map((o) =>
-      o.month === monthData.month && o.year === monthData.year ? monthData : o
-    );
+    const updatedWorkdays = updateMonthInWorkdays(monthData);
     saveWorkdays(updatedWorkdays);
   };
 
   const saveWorkdays = (updatedWorkdays: Workdays) => {
     setItem(StorageTypes.WORKDAYS, updatedWorkdays);
     setWorkdayData(updatedWorkdays);
+  };
+
+  const updateWorkdaysByMonth = (updatedMonth: WMonth) => {
+    setMonthData(updatedMonth);
+    const updatedWorkdays = updateMonthInWorkdays(updatedMonth);
+    setWorkdayData(updatedWorkdays);
+  };
+
+  const updateMonthInWorkdays = (updatedMonth: WMonth) => {
+    return workdayData.map((o) =>
+      o.month === updatedMonth.month && o.year === updatedMonth.year
+        ? monthData
+        : o
+    );
   };
 
   const handleSaveHomeAddress = (address) => {
@@ -195,6 +207,9 @@ function App() {
             selectedDate={selectedDate}
             setMonthData={setMonthData}
             updateDate={(date: Date) => handleUpdatedDate(date)}
+            updateWorkdaysByMonth={(updatedMonth: WMonth) =>
+              updateWorkdaysByMonth(updatedMonth)
+            }
           />
         )}
         <Save saveData={saveData} />

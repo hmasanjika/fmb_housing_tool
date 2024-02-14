@@ -12,6 +12,7 @@ type WorkdayProps = {
   selectedDate: Date;
   setMonthData: Dispatch<SetStateAction<WMonth>>;
   updateDate: (date: Date) => void;
+  updateWorkdaysByMonth: (updatedMonth: WMonth) => void;
 };
 const Workday = ({
   data,
@@ -20,8 +21,8 @@ const Workday = ({
   selectedDate,
   setMonthData,
   updateDate,
+  updateWorkdaysByMonth,
 }: WorkdayProps) => {
-  const [forceUpdateTrigger, setForceUpdateTrigger] = useState<boolean>(true);
   const [isSplitDay, setIsSplitDay] = useState<boolean>(
     data.workdays.some(
       (day: WDay) => day.workPlaceAddressAm?.id !== day.workPlaceAddressPm?.id
@@ -35,15 +36,12 @@ const Workday = ({
       (day: WDay) => day.workDate === editedDay.workDate
     );
     day = editedDay;
-    setMonthData(data);
-    console.log(data);
-    // setForceUpdateTrigger(!forceUpdateTrigger);
+    updateWorkdaysByMonth(data);
   };
 
   const updateMonth = (editedMonth: WDay[]) => {
     data.workdays = editedMonth;
-    setMonthData(data);
-    // setForceUpdateTrigger(!forceUpdateTrigger);
+    updateWorkdaysByMonth(data);
   };
 
   const saveWorkdays = () => {
