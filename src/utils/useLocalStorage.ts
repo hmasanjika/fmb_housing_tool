@@ -4,7 +4,7 @@ import { Address, Workdays } from "../models/types";
 const useLocalStorage = () => {
   const setItem = (
     key: string,
-    value: string | Address[] | FileList | Workdays | null
+    value: string | Address | Address[] | FileList | Workdays | null
   ) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -44,10 +44,6 @@ const useLocalStorage = () => {
       if (key === StorageTypes.FILES) {
         return getFiles(item);
       }
-      if (key === StorageTypes.WORKDAYS) {
-        console.log(item);
-      }
-
       return item ? JSON.parse(item) : undefined;
     } catch (error) {
       console.log(error);

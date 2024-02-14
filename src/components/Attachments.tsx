@@ -130,7 +130,7 @@ const Attachments = ({ files, setFiles, saveFiles }: AttachmentsProps) => {
 
   const AddAttachmentsForm = () => {
     return (
-      <div className="attachments text-sm">
+      <div className="content-container attachments text-sm">
         <form>
           <div className="flex">
             <h1>

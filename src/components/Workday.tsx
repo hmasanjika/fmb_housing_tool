@@ -25,7 +25,7 @@ const Workday = ({
 }: WorkdayProps) => {
   const [isSplitDay, setIsSplitDay] = useState<boolean>(
     data.workdays.some(
-      (day: WDay) => day.workPlaceAddressAm?.id !== day.workPlaceAddressPm?.id
+      (day: WDay) => day.workPlaceAddressAm !== day.workPlaceAddressPm
     )
   );
   let mainWorkplace: Address | null;
@@ -75,9 +75,10 @@ const Workday = ({
     product: WDay,
     workPlaceAddress: Address | null
   ) => {
-    if (workPlaceAddress?.id) {
-      group[workPlaceAddress.id] = group[workPlaceAddress.id] ?? [];
-      group[workPlaceAddress.id].push(product);
+    if (workPlaceAddress) {
+      group[workPlaceAddress.addressName] =
+        group[workPlaceAddress.addressName] ?? [];
+      group[workPlaceAddress.addressName].push(product);
     }
     return group;
   };
@@ -94,7 +95,7 @@ const Workday = ({
         groupByLocation[a] > groupByLocation[b] ? a : b
     );
     mainWorkplace =
-      addresses.find((add: Address) => add.id === mainWorkplaceId) ?? null;
+      addresses.find((add: Address) => add.addressName === mainWorkplaceId) ?? null;
     if (mainWorkplace) {
       distance = Number(
         getDistance(
@@ -110,19 +111,17 @@ const Workday = ({
     distance = null;
   }
 
-  console.log(homeAddress);
-
   return (
     <div>
       <h2 className="sectionTitle">Workdays</h2>
-      <div className="flex justify-between items-center px-[10px]">
+      <div className="toggle-month-picker">
         <SplitDayToggle
           isSplitDay={isSplitDay}
           setIsSplitDay={setIsSplitDay}
           month={data.workdays}
           updateMonth={updateMonth}
         />
-        <MonthPicker updateDate={updateDate} selectedDate={selectedDate} />
+        {/* <MonthPicker updateDate={updateDate} selectedDate={selectedDate} /> */}
       </div>
       <WorkdayList
         month={data.workdays}

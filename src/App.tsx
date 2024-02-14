@@ -19,6 +19,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState<Date>(currentDate);
   const [displayedDate, setDisplayedDate] = useState<Date>(currentDate);
   const [hasUpdatedDate, setHasUpdatedDate] = useState<boolean>(false);
+  const [addressToDelete, setAddressToDelete] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalDetails, setModalDetails] = useState<ModalDetails>({
     message: "Unknown alert",
@@ -75,17 +76,23 @@ function App() {
     );
   };
 
-  const handleSaveHomeAddress = (address) => {
+  const handleSaveHomeAddress = (address: Address) => {
     setHomeAddress(address);
+    let addressList = [address];
     if (addresses.length > 0) {
       const modifiedAddressList = addresses;
       modifiedAddressList[0] = address;
-      setAddresses(modifiedAddressList);
-    } else {
-      setAddresses([address]);
+      addressList = modifiedAddressList;
     }
+    setAddresses(addressList);
     setItem(StorageTypes.HOME_ADDRESS, address);
-    setItem(StorageTypes.ADDRESSES, addresses);
+    setItem(StorageTypes.ADDRESSES, addressList);
+  };
+
+  const handleSaveNewAddress = (address: Address) => {
+    const updatedAddressList: Address[] = [...addresses, address];
+    setAddresses(updatedAddressList);
+    setItem(StorageTypes.ADDRESSES, updatedAddressList);
   };
 
   const handleSaveFiles = (files) => {
@@ -111,7 +118,7 @@ function App() {
       message: `Are you sure you want to delete "${address.addressName}"?`,
       type: ModalTypes.CONFIRMATION,
     });
-    // setAddressIdToDelete(address.id);
+    setAddressToDelete(address.addressName);
     setIsModalOpen(true);
   };
 
@@ -127,23 +134,17 @@ function App() {
     setIsModalOpen(false);
   };
 
-  const confirmDeleteAction = async () => {
-    // DELETE
-
-    // const status = await DeleteFavAddress(
-    //   userInfos.employeeNumber,
-    //   addressIdToDelete
-    // );
-    // if (status === 200) {
-    //   setForceUserUpdate(true);
-    // } else {
-    //   window.alert(`An issue occured with Status Code : ${status}`);
-    // }
+  const confirmDeleteAction = () => {
+    const addressesWithDeleted = addresses.filter(
+      (add) => add.addressName !== addressToDelete
+    );
+    setAddresses(addressesWithDeleted);
+    setItem(StorageTypes.ADDRESSES, addressesWithDeleted);
     cancelAction();
   };
 
   const cancelAction = () => {
-    // setAddressIdToDelete(undefined);
+    setAddressToDelete("");
     closeModal();
   };
 
@@ -189,11 +190,15 @@ function App() {
           saveFiles={(files) => handleSaveFiles(files)}
         />
         <AddHomeAddress
-          isHomeAddress={homeAddress !== undefined}
+          homeAddress={homeAddress}
           saveHomeAddress={(address) => handleSaveHomeAddress(address)}
           openModal={openModal}
         />
-        <AddAddress setAddresses={setAddresses} openModal={openModal} />
+        <AddAddress
+          addresses={addresses}
+          saveAddress={(address) => handleSaveNewAddress(address)}
+          openModal={openModal}
+        />
         <AddressList
           homeAddress={homeAddress}
           addresses={addresses}

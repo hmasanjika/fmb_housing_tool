@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
 import Collapsible from "./Collapsible";
 import Maps from "./Maps";
 import { ModalTypes } from "../models/enums";
@@ -8,19 +7,23 @@ import GetCoordinates from "../axios/GetCoordinates";
 import location from "../assets/icons/location.png";
 
 type Props = {
-  isHomeAddress: boolean;
+  homeAddress: Address;
   saveHomeAddress: (address: Address) => void;
   openModal: (modalDetails: ModalDetails) => void;
 };
-const AddHomeAddress = ({
-  isHomeAddress,
-  saveHomeAddress,
-  openModal,
-}: Props) => {
+const AddHomeAddress = ({ homeAddress, saveHomeAddress, openModal }: Props) => {
   const [addressInfos, setAddressInfos] = useState<undefined | APIAddress>(
-    undefined
+    homeAddress
+      ? {
+          formatted_address: homeAddress.address,
+          geometry: { location: homeAddress.addressCoordinates },
+          inputValueAddress: homeAddress.address,
+        }
+      : undefined
   );
-  const inputRef = useRef();
+  const isHomeAddress = homeAddress !== undefined;
+  const inputRef = useRef<HTMLInputElement>();
+  // inputRef.current.value = homeAddress.address ?? "";
 
   /**
    * Verifies whether or not the address is valid
@@ -84,7 +87,6 @@ const AddHomeAddress = ({
   const saveAddress = () => {
     if (addressInfos) {
       saveHomeAddress({
-        id: uuidv4(),
         addressName: "Home",
         address: addressInfos.formatted_address,
         addressCoordinates: addressInfos.geometry.location,
@@ -115,62 +117,57 @@ const AddHomeAddress = ({
 
   const AddAddressForm = () => {
     return (
-      <div className="FormMapContainer residential-address">
+      <div className="content-container map-form-container add-address">
         <div>
-          <label className="label">
-            <span className="label-text">Address:</span>
-          </label>
-          <input
-            className="input input-bordered w-full max-w-xs formInput"
-            placeholder="Street, number, city"
-            type="text"
-            ref={inputRef}
-          />
-        </div>
-        <button
-          type="button"
-          className="btn btn-primary btn-outline"
-          onClick={() => {
-            if (inputRef.current) {
-              handleFindAddress(inputRef.current["value"]);
-            }
-          }}
-        >
-          Find
-        </button>
-        {addressInfos ? (
-          <div className="flex flex-col">
-            <div className="comLocation">
-              <img className="h-20" src={location} alt="location pin" />
-              <p className="comAddress text-center">
-                {addressInfos.formatted_address}
-              </p>
+          <div className="flex items-end address-row">
+            <div>
+              <label className="label">
+                <span className="label-text">Address:</span>
+              </label>
+              <input
+                className="input input-bordered w-full max-w-xs formInput"
+                placeholder="Street, number, city"
+                type="text"
+                ref={inputRef}
+                defaultValue={addressInfos?.inputValueAddress ?? ""}
+              />
             </div>
-
             <button
-              className="btn w-[250px]"
-              onClick={() => setAddressInfos(undefined)}
+              type="button"
+              className="btn btn-primary btn-outline"
+              onClick={() => {
+                if (inputRef.current) {
+                  handleFindAddress(inputRef.current["value"]);
+                }
+              }}
             >
-              Incorrect address? Modify search
+              Find
             </button>
           </div>
-        ) : (
-          <p>No address found</p>
-        )}
-        <button
-          className="btn btn-primary save-residential-address"
-          disabled={!addressInfos}
-          onClick={saveAddress}
-        >
-          Save address
-        </button>
-        {addressInfos && (
-          <div className="comLocation residential-address-details">
+          <button
+            className="btn btn-primary save-new-address"
+            disabled={
+              !addressInfos ||
+              (addressInfos &&
+                homeAddress &&
+                addressInfos.formatted_address === homeAddress.address)
+            }
+            onClick={saveAddress}
+          >
+            Save
+          </button>
+        </div>
+        {addressInfos ? (
+          <div className="comLocation add-address-details">
             <img className="h-20" src={location} alt="location pin" />
             <p className="comAddress text-center">
               {addressInfos.formatted_address}
             </p>
           </div>
+        ) : (
+          <p className="add-address-details">
+            Please add a residential address
+          </p>
         )}
         <div className="clientMapContainer">
           {addressInfos && (

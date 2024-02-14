@@ -1,7 +1,6 @@
 import { ModalTypes } from "./enums";
 
 export type Address = {
-  id?: string;
   addressName: string;
   address: string;
   addressCoordinates: AddressCoordinates;

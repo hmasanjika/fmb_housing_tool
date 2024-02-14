@@ -70,7 +70,7 @@ body {
 .btn {
   height: 2.5rem;
   min-height: 2rem;
-  margin: 10px auto;
+  margin: 5px auto;
 }
 .btn-primary {
   color: #fff;
@@ -111,26 +111,23 @@ hr {
   margin: 0 10px;
 }
 
-.formContainer {
-  padding: 10px;
-  font-size: 0.875rem;
+// .formContainer {
+//   padding: 10px;
+//   font-size: 0.875rem;
 
-  .label {
-    padding-top: 15px;
-  }
-}
+//   .label {
+//     padding-top: 15px;
+//   }
+// }
 .formInput {
   display: block;
   box-sizing: border-box;
-  width: 230px;
+  width: 330px;
   border-radius: 4px;
   border: 1px solid var(--accentPurple5);
   border-bottom: 1px solid var(--corePurple2);
   padding: 10px;
   font-size: 0.875rem;
-}
-.addClientField {
-  width: 330px;
 }
 .mouseHover:hover {
   color: var(--corePurple2);
@@ -304,33 +301,39 @@ hr {
     margin-right: 5px;
   }
 }
-.FormMapContainer {
+
+.content-container {
+  padding: 20px;
+  font-size: 0.875rem;
+}
+
+.map-form-container {
+  .label {
+    padding-top: 15px;
+  }
+
   .comm-address-text {
     margin: 0 20px;
   }
 
-  &.residential-address {
+  &.add-address {
     display: flex;
     justify-content: space-between;
 
-    .residential-address-details {
-      margin-top: 80px;
+    .add-address-details {
+      margin-top: 50px;
 
       p {
         max-width: 80%;
       }
     }
 
-    button.save-residential-address {
+    button.save-new-address {
       width: 150px;
       margin-top: 30px;
     }
 
-    .addressRow {
-      display: flex;
-      width: 100%;
-      align-items: flex-end;
-
+    .address-row {
       .btn {
         margin: 5px 10px;
       }
@@ -433,60 +436,12 @@ hr {
   align-items: center;
   margin: 0;
 }
-.editableInput {
-  .client-list-name,
-  .client-list-label,
-  .client-list-address {
-    input[type="text"] {
-      width: 100%;
-    }
-  }
-
-  .input-with-button {
-    display: flex;
-
-    button {
-      padding: 10px;
-      margin-top: 4px;
-    }
-  }
-}
-section.hr-home {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 60vh;
-
-  button {
-    width: 200px;
-  }
-
-  h1 {
-    margin-bottom: 20px;
-  }
-}
-
-section.login {
-  height: 80vh;
-  width: 80vh;
-  // background-color: var(--accentPurple5);
-  // border-radius: 50%;
-  margin-left: 200px;
-
-  > div {
-    width: 800px;
-
-    input {
-      width: 300px;
-    }
-  }
-}
 
 div.error-space {
   height: 20px;
 }
 p.error-message {
+  margin-top: 2px;
   font-size: 12px;
   color: red;
 }
@@ -614,4 +569,11 @@ p.select-company-text {
   &:first-letter {
     text-transform: capitalize;
   }
+}
+
+.toggle-month-picker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
 }
