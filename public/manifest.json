@@ -1,0 +1,9 @@
+{
+  "short_name": "FMB App",
+  "name": "Federal Mobility Buddget Housing Reimbursement App",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
