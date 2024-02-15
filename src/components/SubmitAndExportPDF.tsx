@@ -39,6 +39,15 @@ const SubmitAndExportPDF = ({
   distance,
   onClickSave,
 }: Props) => {
+  const primaryPurple = "#7500c0";
+  const secondaryPurple = "#B841FE";
+  const logo: HTMLImageElement = new Image();
+  logo.src = logoSrc;
+  const logoDimensions: { w: number; h: number } = {
+    w: logo.width * 0.003,
+    h: logo.height * 0.003,
+  };
+
   /**
    * Defines and retrieves the paragraph to be displayed between the title and address table
    * @returns - The string of text
@@ -46,9 +55,9 @@ const SubmitAndExportPDF = ({
   const getOpeningText = (month: string) => {
     let mainWorkplaceText = "";
     if (mainWorkplace.addressName === "Home") {
-      mainWorkplaceText = `Your main workplace in ${month} ${data.year} was ${mainWorkplace.addressName}, which is your place of residence.`;
+      mainWorkplaceText = `The main workplace in ${month} ${data.year} was ${mainWorkplace.addressName}, the official place of residence.`;
     } else {
-      mainWorkplaceText = `Your main workplace in ${month} ${data.year} was ${mainWorkplace.addressName}, which is ${distance} km away from your residential address.`;
+      mainWorkplaceText = `The main workplace in ${month} ${data.year} was ${mainWorkplace.addressName}, which is ${distance} km away from the residential address.`;
     }
     return `Date: ${new Date().toLocaleDateString("en-gb", {
       day: "2-digit",
@@ -98,36 +107,100 @@ const SubmitAndExportPDF = ({
         add.workPlaceAddressPm?.addressName === addName ? val + 0.5 : val + 0,
       0
     );
-    console.log(count);
     return count;
   };
 
   const getColumnStyles = () => {
     return areDaysSplit
       ? {
+          0: {
+            halign: "left",
+            cellWidth: 30,
+          },
           1: {
             halign: "center",
-            cellWidth: 14,
           },
           2: {
             halign: "center",
-            cellWidth: 30,
-          },
-          3: {
-            halign: "center",
-            cellWidth: 30,
           },
         }
       : {
+          0: {
+            halign: "center",
+            cellWidth: 40,
+          },
           1: {
             halign: "center",
-            cellWidth: 14,
-          },
-          2: {
-            halign: "center",
-            cellWidth: 60,
           },
         };
+  };
+
+  const getHead = () => {
+    return areDaysSplit
+      ? [
+          [
+            {
+              content: "",
+              colSpan: 1,
+              styles: { halign: "center", fillColor: "#FFFFFF" },
+            },
+            {
+              content: "Work Location",
+              colSpan: 2,
+              styles: { halign: "center", fillColor: primaryPurple },
+            },
+          ],
+          [
+            {
+              content: "Date",
+              colSpan: 1,
+              styles: { halign: "left", fillColor: primaryPurple },
+            },
+            {
+              content: "AM",
+              colSpan: 1,
+              styles: { halign: "center", fillColor: secondaryPurple },
+            },
+            {
+              content: "PM",
+              colSpan: 1,
+              styles: { halign: "center", fillColor: secondaryPurple },
+            },
+          ],
+        ]
+      : [["Date", "Work Location"]];
+  };
+
+  const getCellStyle = (data) => {
+    if (
+      data.cell.raw === "WE / PH" ||
+      data.cell.raw.startsWith("Sat") ||
+      data.cell.raw.startsWith("Sun")
+    ) {
+      data.cell.styles.fillColor = "#DFDFDF";
+      if (data.cell.raw === "WE / PH") {
+        data.cell.styles.textColor = "#878787";
+        data.cell.styles.fontStyle = "italic";
+      }
+    } else if (data.cell.raw === "PTO") {
+      data.cell.styles.fillColor = "#F3F3F3";
+      data.cell.styles.textColor = "#878787";
+      data.cell.styles.fontStyle = "italic";
+      // If the cell contains a location
+    } else if (data.cell.styles.cellWidth === "auto") {
+      data.cell.styles.fontStyle = "bold";
+    }
+  };
+
+  const getLocation = (day: WDay, time: string) => {
+    if (day[`isWorkday${time}`]) {
+      return day[`workPlaceAddress${time}`].addressName;
+    }
+    if (day.isWeekend) {
+      return "WE / PH";
+    }
+    // If paid time off,
+    return "PTO";
   };
 
   /**
@@ -143,13 +216,7 @@ const SubmitAndExportPDF = ({
     const doc = new jsPDF("p", "mm");
     const docMargin: number = 15;
 
-    /** TITLE AND LOGO **/
-    const logo: HTMLImageElement = new Image();
-    logo.src = logoSrc;
-    const logoDimensions: { w: number; h: number } = {
-      w: logo.width * 0.002,
-      h: logo.height * 0.002,
-    };
+    /** TITLE **/
     const title: string = `FMB Usual Workplace Document - ${month} ${data.year}`;
     doc
       .setFontSize(12)
@@ -174,7 +241,8 @@ const SubmitAndExportPDF = ({
     doc.setFont(undefined, "normal").text(openingText, docMargin, 25);
 
     /** TABLE OF ADDRESSES **/
-    const addressesStartY: number = 50;
+    const addressesStartY: number =
+      mainWorkplace.addressName === "Home" ? 45 : 50;
     // Title
     doc
       .setFont(undefined, "bold")
@@ -195,23 +263,56 @@ const SubmitAndExportPDF = ({
     // Creating address table
     let addressesEndY: number | undefined = 0;
     autoTable(doc, {
-      head: [["Name", "Address", "Total worked days", "Distance (km)"]],
+      theme: "grid",
+      styles: { fontSize: 9 },
+      head: [["Name", "Address", "Total Worked Days", "Distance* (km)"]],
       body: addressesData,
       startY: addressesStartY + 2,
-      theme: "grid",
       headStyles: {
-        fillColor: "#7500c0",
+        fillColor: primaryPurple,
+      },
+      columnStyles: {
+        2: {
+          cellWidth: 20,
+        },
+        3: {
+          cellWidth: 20,
+        },
       },
       didDrawPage: function (data) {
         addressesEndY = data.cursor?.y;
       },
     });
 
+    // Address table notes
+    const addrTabNotes = "*Distance from the official place of residence";
+    doc
+      .setFont(undefined, "normal")
+      .setFontSize(7)
+      .text(addrTabNotes, docMargin, addressesEndY + 4);
+
     /** CALENDAR **/
     // Title
     doc
       .setFont(undefined, "bold")
-      .text("Calendar", docMargin, addressesEndY + 10);
+      .setFontSize(9)
+      .text(
+        "Calendar",
+        docMargin,
+        addressesEndY + doc.getTextDimensions(addrTabNotes).h + 10
+      );
+
+    // Calendar table notes - abbreviation descriptions
+    const abbrDesc = "WE / PH = Weekend or Public Holiday, PTO = Paid Time Off";
+    doc
+      .setFont(undefined, "normal")
+      .text(
+        abbrDesc,
+        doc.internal.pageSize.width -
+          doc.getTextDimensions(abbrDesc).w -
+          docMargin,
+        addressesEndY + doc.getTextDimensions(addrTabNotes).h + 10
+      );
 
     // Creating array of data to fill the cells in the following calendar table
     const calendarData = [];
@@ -223,8 +324,8 @@ const SubmitAndExportPDF = ({
           month: "2-digit",
           year: "2-digit",
         }),
-        day.workPlaceAddressAm?.addressName,
-        areDaysSplit() ? day.workPlaceAddressPm?.addressName : null,
+        getLocation(day, "Am"),
+        areDaysSplit() ? getLocation(day, "Pm") : null,
       ];
       calendarData.push(rowData);
     });
@@ -232,67 +333,30 @@ const SubmitAndExportPDF = ({
     // TO DO: Improve table layout (with AM and PM)
     // Creating calendar table
     let calendarTableY: number | undefined = 0;
-    let head = [
-      [
-        {
-          content: "",
-          colSpan: 1,
-          styles: { halign: "center", fillColor: "#7500c0" },
-        },
-        {
-          content: "Work Location",
-          colSpan: 2,
-          styles: { halign: "center", fillColor: "#e6dcff" },
-        },
-      ],
-      ["Date", "AM", "PM"],
-    ];
-    // let column = {
-    //   1: {
-    //     halign: "center",
-    //     cellWidth: 14,
-    //   },
-    //   2: {
-    //     halign: "center",
-    //     cellWidth: 30,
-    //   },
-    //   3: {
-    //     halign: "center",
-    //     cellWidth: 30,
-    //   },
-    // };
-    if (!areDaysSplit()) {
-      head = [["Date", "Work Location"]];
-    }
     (doc as any).autoTable({
-      head: head,
-      body: calendarData,
-      startY: addressesEndY + 12,
       theme: "grid",
-      headStyles: {
-        fillColor: "#7500c0",
-      },
+      styles: { fontSize: 9 },
+      head: getHead(),
+      body: calendarData,
+      startY: addressesEndY + doc.getTextDimensions(addrTabNotes).h + 12,
       columnStyles: getColumnStyles(),
       didDrawPage: function (data) {
         calendarTableY = data.cursor?.y;
       },
+      didParseCell: function (data) {
+        if (data.section === "body") {
+          getCellStyle(data);
+        }
+      },
     });
-
-    // Calendar table footnotes
-    doc
-      .setFont(undefined, "normal")
-      .text(
-        "*Paid time off\n**Weekend or public holiday",
-        docMargin,
-        calendarTableY + 25
-      );
 
     doc
       .setFont(undefined, "italic")
       .text(
-        `I acknowledge that the information above is correct and confirm I have worked the majority of my working time\nfrom ${mainWorkplace.addressName}.`,
+        `I acknowledge that the information above is correct and confirm I have worked the majority of my working time from ${mainWorkplace.addressName}.`,
         docMargin,
-        calendarTableY + 10
+        calendarTableY + 10,
+        { maxWidth: doc.internal.pageSize.width - 2 * docMargin, align: "left" }
       );
 
     const fileInput = document.getElementById(

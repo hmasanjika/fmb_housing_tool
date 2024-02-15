@@ -33,12 +33,12 @@ const Attachments = ({
   // });
 
   const addFiles = async (newFiles: FileList | null) => {
-    if (!validateSize) {
-      openModal({
-        message: "Your file sizes are too large",
-        type: ModalTypes.ERROR,
-      });
-    } else {
+    // if (!validateSize) {
+    //   openModal({
+    //     message: "Your file sizes are too large",
+    //     type: ModalTypes.ERROR,
+    //   });
+    // } else {
       const updatedFileList = new DataTransfer();
       if (files) {
         for (const file of files) {
@@ -62,7 +62,7 @@ const Attachments = ({
         toStore.push(compatibleFile);
       }
       saveFiles(toStore);
-    }
+    // }
   };
 
   const validateSize = (newFiles: FileList | null) => {

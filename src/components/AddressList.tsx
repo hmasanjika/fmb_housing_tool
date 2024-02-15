@@ -16,7 +16,6 @@ type ItemProps = {
   isHome: boolean;
 };
 const AddressList = ({ homeAddress, addresses, deleteAddress }: ListProps) => {
-  console.log(addresses);
   const Item = ({ address, isHome }: ItemProps): JSX.Element | null => {
     const [isDeleteHovered, setIsDeleteHovered] = React.useState(false);
     const distance =

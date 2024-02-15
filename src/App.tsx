@@ -272,8 +272,6 @@ function App() {
             data={monthData}
             homeAddress={homeAddress}
             addresses={addresses}
-            setMainWorkplace={setMainWorkplace}
-            setDistance={setDistance}
             selectedDate={selectedDate}
             setMonthData={setMonthData}
             updateDate={(date: Date) => handleUpdatedDate(date)}
