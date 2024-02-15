@@ -44,9 +44,11 @@ function App() {
   );
   const [monthData, setMonthData] = useState<WMonth | undefined>(undefined);
   const [mainWorkplace, setMainWorkplace] = useState<Address | null>(
-    homeAddress
+    getItem(StorageTypes.MAINWORKPLACE)?.address ?? null
   );
-  const [distance, setDistance] = useState<number | null>(0);
+  const [distance, setDistance] = useState<number | null>(
+    getItem(StorageTypes.MAINWORKPLACE)?.distance ?? null
+  );
 
   useEffect(() => {
     if (hasUpdatedDate) {
@@ -65,7 +67,44 @@ function App() {
 
   const saveWorkdays = (updatedWorkdays: Workdays) => {
     setItem(StorageTypes.WORKDAYS, updatedWorkdays);
+    setItem(StorageTypes.MAINWORKPLACE, {
+      address: mainWorkplace,
+      distance: distance,
+    });
     setWorkdayData(updatedWorkdays);
+  };
+
+  const addHomeToWorkdays = (address: Address) => {
+    const updatedWorkdays = monthData.workdays.map((d) => {
+      if (
+        d.isWorkdayAm &&
+        d.isWorkdayPm &&
+        !d.workPlaceAddressAm &&
+        !d.workPlaceAddressPm
+      ) {
+        return {
+          ...d,
+          workPlaceAddressAm: address,
+          workPlaceAddressPm: address,
+        };
+      } else if (d.isWorkdayAm && !d.workPlaceAddressAm) {
+        return {
+          ...d,
+          workPlaceAddressAm: address,
+        };
+      } else if (d.isWorkdayPm && !d.workPlaceAddressPm) {
+        return {
+          ...d,
+          workPlaceAddressPm: address,
+        };
+      }
+      return d;
+    });
+    updateWorkdaysByMonth({
+      month: monthData.month,
+      year: monthData.year,
+      workdays: updatedWorkdays,
+    });
   };
 
   const updateWorkdaysByMonth = (updatedMonth: WMonth) => {
@@ -149,6 +188,10 @@ function App() {
     setAddresses(addressList);
     setItem(StorageTypes.HOME_ADDRESS, address);
     setItem(StorageTypes.ADDRESSES, addressList);
+    addHomeToWorkdays(address);
+    setMainWorkplace(address);
+    setDistance(0);
+    setItem("mainWorkplace", { address: address, distance: 0 });
   };
 
   const handleSaveNewAddress = (address: Address) => {
@@ -292,7 +335,6 @@ function App() {
           mainWorkplace={mainWorkplace}
           distance={distance}
           files={files}
-          onClickSave={saveData}
         />
       </div>
       <AlertModal

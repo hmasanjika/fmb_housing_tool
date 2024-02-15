@@ -113,7 +113,7 @@ const SubmitAndExportPDF = ({
   };
 
   const getColumnStyles = () => {
-    return areDaysSplit
+    return areDaysSplit()
       ? {
           0: {
             halign: "left",
@@ -128,7 +128,7 @@ const SubmitAndExportPDF = ({
         }
       : {
           0: {
-            halign: "center",
+            halign: "left",
             cellWidth: 40,
           },
           1: {
@@ -138,7 +138,7 @@ const SubmitAndExportPDF = ({
   };
 
   const getHead = () => {
-    return areDaysSplit
+    return areDaysSplit()
       ? [
           [
             {
@@ -170,7 +170,20 @@ const SubmitAndExportPDF = ({
             },
           ],
         ]
-      : [["Date", "Work Location"]];
+      : [
+          [
+            {
+              content: "Date",
+              colSpan: 1,
+              styles: { halign: "left", fillColor: primaryPurple },
+            },
+            {
+              content: "Work Location",
+              colSpan: 1,
+              styles: { halign: "center", fillColor: primaryPurple },
+            },
+          ],
+        ];
   };
 
   const getCellStyle = (data) => {
@@ -196,7 +209,7 @@ const SubmitAndExportPDF = ({
 
   const getLocation = (day: WDay, time: string) => {
     if (day[`isWorkday${time}`]) {
-      return day[`workPlaceAddress${time}`].addressName;
+      return day[`workPlaceAddress${time}`]?.addressName;
     }
     if (day.isWeekend) {
       return "WE / PH";
@@ -346,7 +359,7 @@ const SubmitAndExportPDF = ({
         calendarTableY = data.cursor?.y;
       },
       didParseCell: function (data) {
-        if (data.section === "body") {
+        if (data.section === "body" && data.cell.raw) {
           getCellStyle(data);
         }
       },
@@ -387,7 +400,9 @@ const SubmitAndExportPDF = ({
     <button
       className="btn btn-primary"
       style={{ marginLeft: "10px" }}
-      disabled={disabled}
+      disabled={
+        !mainWorkplace || (distance && distance > 10) || userName === ""
+      }
       onClick={handleButtonClick}
     >
       Save and generate PDF

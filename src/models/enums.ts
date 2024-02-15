@@ -4,6 +4,7 @@ export enum StorageTypes {
   ADDRESSES = "addresses",
   FILES = "files",
   WORKDAYS = "workdays",
+  MAINWORKPLACE = "mainWorkplace",
 }
 
 export enum ModalTypes {

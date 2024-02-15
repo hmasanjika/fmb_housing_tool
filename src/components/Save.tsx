@@ -11,7 +11,6 @@ type Props = {
   mainWorkplace: Address;
   distance: number;
   files: FileList;
-  onClickSave: () => void;
 };
 const Save = ({
   saveData,
@@ -22,7 +21,6 @@ const Save = ({
   mainWorkplace,
   distance,
   files,
-  onClickSave,
 }: Props) => {
   return (
     <div>
@@ -41,7 +39,7 @@ const Save = ({
         mainWorkplace={mainWorkplace}
         distance={distance}
         files={files}
-        onClickSave={onClickSave}
+        onClickSave={saveData}
       />
     </div>
   );

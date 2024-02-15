@@ -57,7 +57,12 @@ export type ModalDetails = {
   url?: string;
 };
 
+export type MainWorkplace = {
+  address: Address;
+  distance: number;
+};
+
 export type StoredFile = {
   name: string;
   base64: string;
-}
+};

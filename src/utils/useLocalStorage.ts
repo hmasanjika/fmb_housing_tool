@@ -1,10 +1,10 @@
 import { StorageTypes } from "../models/enums";
-import { Address, Workdays } from "../models/types";
+import { Address, MainWorkplace, Workdays } from "../models/types";
 
 const useLocalStorage = () => {
   const setItem = (
     key: string,
-    value: string | Address | Address[] | FileList | Workdays | null
+    value: string | Address | Address[] | FileList | Workdays | MainWorkplace | null
   ) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
@@ -15,7 +15,6 @@ const useLocalStorage = () => {
 
   const getFiles = async (item: string) => {
     const array = JSON.parse(item);
-    // console.log(array);
     if (array) {
       const fileList = new DataTransfer();
       await array.forEach(async (f) => {
