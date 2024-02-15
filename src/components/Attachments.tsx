@@ -1,6 +1,5 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { Tooltip } from "react-tooltip";
-import AlertModal from "./AlertModal";
 import { ModalDetails } from "../models/types";
 import { ModalTypes } from "../models/enums";
 import trash from "../assets/icons/trash.png";
@@ -25,50 +24,45 @@ const Attachments = ({
   saveFiles,
   openModal,
 }: AttachmentsProps) => {
-  console.log(files);
-  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  // const [modalDetails, setModalDetails] = useState<ModalDetails>({
-  //   message: "Unknown alert",
-  //   type: ModalTypes.ERROR,
-  // });
-
   const addFiles = async (newFiles: FileList | null) => {
-    // if (!validateSize) {
-    //   openModal({
-    //     message: "Your file sizes are too large",
-    //     type: ModalTypes.ERROR,
-    //   });
-    // } else {
-      const updatedFileList = new DataTransfer();
-      if (files) {
-        for (const file of files) {
-          updatedFileList.items.add(file);
-        }
+    const existingFiles = await files;
+    if (!validateSize(newFiles)) {
+      openModal({
+        message: "Your file sizes are too large",
+        type: ModalTypes.ERROR,
+      });
+    } else {
+    const updatedFileList = new DataTransfer();
+    if (existingFiles) {
+      for (const file of existingFiles) {
+        updatedFileList.items.add(file);
       }
-      if (newFiles) {
-        for (const file of newFiles) {
-          updatedFileList.items.add(file);
-        }
+    }
+    if (newFiles) {
+      for (const file of newFiles) {
+        updatedFileList.items.add(file);
       }
-      (document.getElementById("uploadedFiles") as HTMLInputElement).files =
-        updatedFileList.files;
-      setFiles(updatedFileList.files);
-      const toStore = [];
-      for (const file of updatedFileList.files) {
-        const compatibleFile = {
-          name: file.name,
-          base64: await toBase64(file),
-        };
-        toStore.push(compatibleFile);
-      }
-      saveFiles(toStore);
-    // }
+    }
+    (document.getElementById("uploadedFiles") as HTMLInputElement).files =
+      updatedFileList.files;
+    setFiles(updatedFileList.files);
+    const toStore = [];
+    for (const file of updatedFileList.files) {
+      const compatibleFile = {
+        name: file.name,
+        base64: await toBase64(file),
+      };
+      toStore.push(compatibleFile);
+    }
+    saveFiles(toStore);
+    }
   };
 
-  const validateSize = (newFiles: FileList | null) => {
+  const validateSize = async (newFiles: FileList | null) => {
+    const existingFiles = await files;
     let filesSize = 0;
-    if (files) {
-      for (const file of files) {
+    if (existingFiles) {
+      for (const file of existingFiles) {
         filesSize += file.size;
       }
     }
@@ -115,7 +109,6 @@ const Attachments = ({
   // };
 
   const FileItem = ({ file, index }: FileItemProps) => {
-    console.log(file);
     const [isDeleteHovered, setIsDeleteHovered] = useState<boolean>(false);
 
     // const openPreviewModal = () => {
