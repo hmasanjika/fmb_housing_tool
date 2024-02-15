@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/fmb_housing_tool/static/css/main.53b69559.css",
+    "main.js": "/fmb_housing_tool/static/js/main.311e9e74.js",
+    "static/js/300.5576a86f.chunk.js": "/fmb_housing_tool/static/js/300.5576a86f.chunk.js",
+    "static/js/952.0915ecb4.chunk.js": "/fmb_housing_tool/static/js/952.0915ecb4.chunk.js",
+    "static/js/856.3c723dba.chunk.js": "/fmb_housing_tool/static/js/856.3c723dba.chunk.js",
+    "static/js/592.f46f568f.chunk.js": "/fmb_housing_tool/static/js/592.f46f568f.chunk.js",
+    "static/media/GT-Sectra-Fine-Regular.otf": "/fmb_housing_tool/static/media/GT-Sectra-Fine-Regular.dd3d1fe65012c477aeda.otf",
+    "static/media/Graphik-Regular.ttf": "/fmb_housing_tool/static/media/Graphik-Regular.a89b485a32fa71da8b61.ttf",
+    "static/media/Acc_Logo_Black_Purple_RGB.png": "/fmb_housing_tool/static/media/Acc_Logo_Black_Purple_RGB.83e2c6b4fe276c2fdcee.png",
+    "index.html": "/fmb_housing_tool/index.html",
+    "main.53b69559.css.map": "/fmb_housing_tool/static/css/main.53b69559.css.map",
+    "main.311e9e74.js.map": "/fmb_housing_tool/static/js/main.311e9e74.js.map",
+    "300.5576a86f.chunk.js.map": "/fmb_housing_tool/static/js/300.5576a86f.chunk.js.map",
+    "952.0915ecb4.chunk.js.map": "/fmb_housing_tool/static/js/952.0915ecb4.chunk.js.map",
+    "856.3c723dba.chunk.js.map": "/fmb_housing_tool/static/js/856.3c723dba.chunk.js.map",
+    "592.f46f568f.chunk.js.map": "/fmb_housing_tool/static/js/592.f46f568f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.53b69559.css",
+    "static/js/main.311e9e74.js"
+  ]
+}
