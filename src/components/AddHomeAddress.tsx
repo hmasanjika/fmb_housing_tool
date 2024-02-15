@@ -90,6 +90,7 @@ const AddHomeAddress = ({ homeAddress, saveHomeAddress, openModal }: Props) => {
         addressName: "Home",
         address: addressInfos.formatted_address,
         addressCoordinates: addressInfos.geometry.location,
+        distanceFromHome: 0,
       });
       openModal({
         message: "Successfully added primary residential address",

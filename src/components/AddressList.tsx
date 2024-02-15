@@ -83,7 +83,7 @@ const AddressList = ({ homeAddress, addresses, deleteAddress }: ListProps) => {
               <th className="bg-accent w-auto">Address Name</th>
               <th className="bg-accent">Address</th>
               <th className="bg-accent text-center">Distance from home</th>
-              <th className="bg-accent">Actions</th>
+              <th className="bg-accent"></th>
             </tr>
           </thead>
           {addresses.length > 0 ? (

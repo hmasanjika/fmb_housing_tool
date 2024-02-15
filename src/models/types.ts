@@ -4,6 +4,7 @@ export type Address = {
   addressName: string;
   address: string;
   addressCoordinates: AddressCoordinates;
+  distanceFromHome: number;
   inputValueAddress?: string;
 };
 

@@ -13,43 +13,72 @@ type AttachmentsProps = {
   files: FileList | null;
   setFiles: Dispatch<SetStateAction<FileList | null>>;
   saveFiles: (files) => void;
+  openModal: (modalDetails: ModalDetails) => void;
 };
 type FileItemProps = {
   file: File;
   index: number;
 };
-const Attachments = ({ files, setFiles, saveFiles }: AttachmentsProps) => {
+const Attachments = ({
+  files,
+  setFiles,
+  saveFiles,
+  openModal,
+}: AttachmentsProps) => {
   console.log(files);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [modalDetails, setModalDetails] = useState<ModalDetails>({
-    message: "Unknown alert",
-    type: ModalTypes.ERROR,
-  });
+  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  // const [modalDetails, setModalDetails] = useState<ModalDetails>({
+  //   message: "Unknown alert",
+  //   type: ModalTypes.ERROR,
+  // });
 
   const addFiles = async (newFiles: FileList | null) => {
-    const updatedFileList = new DataTransfer();
+    if (!validateSize) {
+      openModal({
+        message: "Your file sizes are too large",
+        type: ModalTypes.ERROR,
+      });
+    } else {
+      const updatedFileList = new DataTransfer();
+      if (files) {
+        for (const file of files) {
+          updatedFileList.items.add(file);
+        }
+      }
+      if (newFiles) {
+        for (const file of newFiles) {
+          updatedFileList.items.add(file);
+        }
+      }
+      (document.getElementById("uploadedFiles") as HTMLInputElement).files =
+        updatedFileList.files;
+      setFiles(updatedFileList.files);
+      const toStore = [];
+      for (const file of updatedFileList.files) {
+        const compatibleFile = {
+          name: file.name,
+          base64: await toBase64(file),
+        };
+        toStore.push(compatibleFile);
+      }
+      saveFiles(toStore);
+    }
+  };
+
+  const validateSize = (newFiles: FileList | null) => {
+    let filesSize = 0;
     if (files) {
       for (const file of files) {
-        updatedFileList.items.add(file);
+        filesSize += file.size;
       }
     }
     if (newFiles) {
       for (const file of newFiles) {
-        updatedFileList.items.add(file);
+        filesSize += file.size;
       }
     }
-    (document.getElementById("uploadedFiles") as HTMLInputElement).files =
-      updatedFileList.files;
-    setFiles(updatedFileList.files);
-    const toStore = [];
-    for (const file of updatedFileList.files) {
-      const compatibleFile = {
-        name: file.name,
-        base64: await toBase64(file),
-      };
-      toStore.push(compatibleFile);
-    }
-    saveFiles(toStore);
+    console.log(filesSize);
+    return filesSize < 4;
   };
 
   const toBase64 = (file) =>
@@ -77,26 +106,26 @@ const Attachments = ({ files, setFiles, saveFiles }: AttachmentsProps) => {
     }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setModalDetails({
-      message: "Unknown alert",
-      type: ModalTypes.ERROR,
-    });
-  };
+  // const closeModal = () => {
+  //   setIsModalOpen(false);
+  //   setModalDetails({
+  //     message: "Unknown alert",
+  //     type: ModalTypes.ERROR,
+  //   });
+  // };
 
   const FileItem = ({ file, index }: FileItemProps) => {
     console.log(file);
     const [isDeleteHovered, setIsDeleteHovered] = useState<boolean>(false);
 
-    const openPreviewModal = () => {
-      setModalDetails({
-        message: "",
-        type: ModalTypes.PREVIEW_URL,
-        url: URL.createObjectURL(file),
-      });
-      setIsModalOpen(true);
-    };
+    // const openPreviewModal = () => {
+    //   setModalDetails({
+    //     message: "",
+    //     type: ModalTypes.PREVIEW_URL,
+    //     url: URL.createObjectURL(file),
+    //   });
+    //   setIsModalOpen(true);
+    // };
 
     return (
       <li className="flex w-fit">
@@ -116,7 +145,13 @@ const Attachments = ({ files, setFiles, saveFiles }: AttachmentsProps) => {
         </button>
         <p
           className="mouseHover"
-          onClick={() => openPreviewModal()}
+          onClick={() =>
+            openModal({
+              message: "",
+              type: ModalTypes.PREVIEW_URL,
+              url: URL.createObjectURL(file),
+            })
+          }
           data-tooltip-id="tooltip-preview-file"
           data-tooltip-content="Preview file"
         >
@@ -171,11 +206,11 @@ const Attachments = ({ files, setFiles, saveFiles }: AttachmentsProps) => {
             </ul>
           </div>
         )}
-        <AlertModal
+        {/* <AlertModal
           modalIsOpen={isModalOpen}
           modalDetails={modalDetails}
           closeModal={closeModal}
-        />
+        /> */}
       </div>
     );
   };

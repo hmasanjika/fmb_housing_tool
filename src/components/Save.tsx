@@ -1,9 +1,27 @@
 import React from "react";
+import SubmitAndExportPDF from "./SubmitAndExportPDF";
+import { Address, WMonth } from "../models/types";
 
 type Props = {
   saveData: () => void;
+  pdfDisabled: boolean;
+  monthData: WMonth;
+  userName: string;
+  addresses: Address[];
+  mainWorkplace: Address;
+  distance: number;
+  onClickSave: () => void;
 };
-const Save = ({ saveData }: Props) => {
+const Save = ({
+  saveData,
+  pdfDisabled,
+  monthData,
+  userName,
+  addresses,
+  mainWorkplace,
+  distance,
+  onClickSave,
+}: Props) => {
   return (
     <div>
       <button
@@ -13,13 +31,15 @@ const Save = ({ saveData }: Props) => {
       >
         Save
       </button>
-      {/* <SubmitAndExportPDF
-        disabled={!mainWorkplace || (distance && distance > 10) ? true : false}
-        data={data}
-        user={user}
-        onClickSave={saveWorkdays}
-        modalDetails={modalDetails}
-      /> */}
+      <SubmitAndExportPDF
+        disabled={pdfDisabled}
+        data={monthData}
+        userName={userName}
+        addresses={addresses}
+        mainWorkplace={mainWorkplace}
+        distance={distance}
+        onClickSave={onClickSave}
+      />
     </div>
   );
 };

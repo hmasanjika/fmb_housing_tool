@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Collapsible from "./Collapsible";
 import Maps from "./Maps";
@@ -6,6 +6,7 @@ import { ModalTypes } from "../models/enums";
 import { APIAddress, Address, ModalDetails } from "../models/types";
 import GetCoordinates from "../axios/GetCoordinates";
 import location from "../assets/icons/location.png";
+import { getDistance } from "../utils/GetDistance";
 
 type Props = {
   addresses: Address[];
@@ -88,6 +89,12 @@ const AddAddress = ({ addresses, saveAddress, openModal }: Props) => {
         addressName: data.name,
         address: addressInfos.formatted_address,
         addressCoordinates: addressInfos.geometry.location,
+        distanceFromHome: Number(
+          getDistance(
+            addressInfos.geometry.location,
+            addresses[0].addressCoordinates
+          )
+        ),
       };
       saveAddress(newAddress);
 
@@ -139,7 +146,13 @@ const AddAddress = ({ addresses, saveAddress, openModal }: Props) => {
             </p>
           )}
 
-          <div className={nameError ? "flex items-end address-row" : "flex items-end address-row pt-[20px]"}>
+          <div
+            className={
+              nameError
+                ? "flex items-end address-row"
+                : "flex items-end address-row pt-[20px]"
+            }
+          >
             <div>
               <label className="label">
                 <span className="label-text">Address:</span>

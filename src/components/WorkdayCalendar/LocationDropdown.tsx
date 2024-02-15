@@ -60,7 +60,7 @@ const LocationDropdown = ({ day, time, addresses, updateDay }: Props) => {
           </div>
           <ul
             tabIndex={0}
-            className="dropdown-content px-5 shadow bg-base-100 w-fit"
+            className="dropdown-content px-5 shadow bg-base-100 w-fit z-10"
           >
             {addresses.map((address, index) => {
               return (

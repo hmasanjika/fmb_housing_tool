@@ -7,7 +7,6 @@ import publicHolidays from "../../hr/public_holidays.json";
 type ListProps = {
   month: WDay[];
   addresses: Addresses;
-  mainWorkplace: Address | null;
   homeAddress: Address;
   updateDay: (editedDay: WDay) => void;
   updateMonth: (editedMonth: WDay[]) => void;

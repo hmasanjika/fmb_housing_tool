@@ -9,6 +9,8 @@ type WorkdayProps = {
   data: WMonth;
   homeAddress: Address;
   addresses: Address[];
+  setMainWorkplace: Dispatch<SetStateAction<Address | null>>;
+  setDistance: Dispatch<SetStateAction<number | null>>;
   selectedDate: Date;
   setMonthData: Dispatch<SetStateAction<WMonth>>;
   updateDate: (date: Date) => void;
@@ -18,6 +20,8 @@ const Workday = ({
   data,
   homeAddress,
   addresses,
+  setMainWorkplace,
+  setDistance,
   selectedDate,
   setMonthData,
   updateDate,
@@ -25,11 +29,11 @@ const Workday = ({
 }: WorkdayProps) => {
   const [isSplitDay, setIsSplitDay] = useState<boolean>(
     data.workdays.some(
-      (day: WDay) => day.workPlaceAddressAm !== day.workPlaceAddressPm
+      (day: WDay) =>
+        day.workPlaceAddressAm?.addressName !==
+        day.workPlaceAddressPm?.addressName
     )
   );
-  let mainWorkplace: Address | null;
-  let distance: number | null;
 
   const updateDay = (editedDay: WDay) => {
     let day = data.workdays.find(
@@ -70,46 +74,50 @@ const Workday = ({
     // return Boolean(await promise);
   };
 
-  const addWorkPlaceAddress = (
-    group: {},
-    product: WDay,
-    workPlaceAddress: Address | null
-  ) => {
-    if (workPlaceAddress) {
-      group[workPlaceAddress.addressName] =
-        group[workPlaceAddress.addressName] ?? [];
-      group[workPlaceAddress.addressName].push(product);
-    }
-    return group;
-  };
+  // const addWorkPlaceAddress = (
+  //   group: {},
+  //   product: WDay,
+  //   workPlaceAddress: Address | null
+  // ) => {
+  //   if (workPlaceAddress) {
+  //     group[workPlaceAddress.addressName] =
+  //       group[workPlaceAddress.addressName] ?? [];
+  //     group[workPlaceAddress.addressName].push(product);
+  //   }
+  //   return group;
+  // };
 
-  const groupByLocation = data.workdays.reduce((group: {}, product: WDay) => {
-    const { workPlaceAddressAm, workPlaceAddressPm } = product;
-    group = addWorkPlaceAddress(group, product, workPlaceAddressAm);
-    group = addWorkPlaceAddress(group, product, workPlaceAddressPm);
-    return group;
-  }, {});
-  if (Object.values(groupByLocation).length > 0) {
-    const mainWorkplaceId: string = Object.keys(groupByLocation).reduce(
-      (a: string, b: string) =>
-        groupByLocation[a] > groupByLocation[b] ? a : b
-    );
-    mainWorkplace =
-      addresses.find((add: Address) => add.addressName === mainWorkplaceId) ?? null;
-    if (mainWorkplace) {
-      distance = Number(
-        getDistance(
-          mainWorkplace.addressCoordinates,
-          homeAddress.addressCoordinates
-        )
-      );
-    } else {
-      distance = null;
-    }
-  } else {
-    mainWorkplace = null;
-    distance = null;
-  }
+  // const groupByLocation = data.workdays.reduce((group: {}, product: WDay) => {
+  //   const { workPlaceAddressAm, workPlaceAddressPm } = product;
+  //   group = addWorkPlaceAddress(group, product, workPlaceAddressAm);
+  //   group = addWorkPlaceAddress(group, product, workPlaceAddressPm);
+  //   return group;
+  // }, {});
+  // if (Object.values(groupByLocation).length > 0) {
+  //   const mainWorkplaceId: string = Object.keys(groupByLocation).reduce(
+  //     (a: string, b: string) =>
+  //       groupByLocation[a] > groupByLocation[b] ? a : b
+  //   );
+  //   const newMainWorkplace =
+  //     addresses.find((add: Address) => add.addressName === mainWorkplaceId) ??
+  //     null;
+  //   // setMainWorkplace(newMainWorkplace);
+  //   if (newMainWorkplace) {
+  //     const newDistance = Number(
+  //       getDistance(
+  //         newMainWorkplace.addressCoordinates,
+  //         homeAddress.addressCoordinates
+  //       )
+  //     );
+  //     // setDistance(newDistance);
+  //   } else {
+  //     const newDistance = null;
+  //     // setDistance(newDistance);
+  //   }
+  // } else {
+  //   // setMainWorkplace(null);
+  //   // setDistance(null);
+  // }
 
   return (
     <div>
@@ -126,41 +134,11 @@ const Workday = ({
       <WorkdayList
         month={data.workdays}
         addresses={addresses}
-        mainWorkplace={mainWorkplace}
         homeAddress={homeAddress}
         updateDay={updateDay}
         updateMonth={updateMonth}
         isSplitDay={isSplitDay}
       />
-      <div id="eligibilityMessage">
-        {mainWorkplace ? (
-          <p>
-            Your main work location this month is{" "}
-            <b>{mainWorkplace.addressName}</b>
-            {mainWorkplace.address !== homeAddress.address ? (
-              <span>
-                , which is <b>{distance} km</b> away from your place of
-                residence.
-              </span>
-            ) : (
-              <span>.</span>
-            )}
-          </p>
-        ) : (
-          <p>You have not worked this month.</p>
-        )}
-        {distance === 0 || (distance && distance < 10) ? (
-          <p>
-            You are <b className="text-green-500">eligible</b> to receive
-            reimbursement for housing costs.
-          </p>
-        ) : (
-          <p>
-            You are <b className="text-red-500">not eligible</b> to receive
-            reimbursement for housing costs.
-          </p>
-        )}
-      </div>
     </div>
   );
 };

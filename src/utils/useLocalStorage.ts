@@ -15,27 +15,31 @@ const useLocalStorage = () => {
 
   const getFiles = async (item: string) => {
     const array = JSON.parse(item);
-    const fileList = new DataTransfer();
     // console.log(array);
-    await array.forEach(async (f) => {
-      const res: Response = await fetch(f.base64);
-      const blob: Blob = await res.blob();
-      const file = new File([blob], f.name, { type: "application/pdf" });
-      fileList.items.add(file);
-      // fetch(f.base64)
-      //   .then((res) => res.blob())
-      //   .then((blob) => {
-      //     const file = new File([blob], f.name, {
-      //       type: "application/pdf",
-      //     });
-      //     console.log(file);
-      //     fileList.items.add(file);
-      //   });
-      // const file = new File([f.base64], f.name, {
-      //   type: "application/pdf",
-      // });
-    });
-    return fileList.files;
+    if (array) {
+      const fileList = new DataTransfer();
+      await array.forEach(async (f) => {
+        const res: Response = await fetch(f.base64);
+        const blob: Blob = await res.blob();
+        const file = new File([blob], f.name, { type: "application/pdf" });
+        fileList.items.add(file);
+        // fetch(f.base64)
+        //   .then((res) => res.blob())
+        //   .then((blob) => {
+        //     const file = new File([blob], f.name, {
+        //       type: "application/pdf",
+        //     });
+        //     console.log(file);
+        //     fileList.items.add(file);
+        //   });
+        // const file = new File([f.base64], f.name, {
+        //   type: "application/pdf",
+        // });
+      });
+
+      return fileList.files;
+    }
+    return null;
   };
 
   const getItem = (key: string) => {

@@ -12,6 +12,8 @@ import AddressList from "./components/AddressList";
 import Workday from "./components/Workday";
 import AddHomeAddress from "./components/AddHomeAddress";
 import Header from "./components/Header";
+import EligibilityMessage from "./components/EligibilityMessage";
+import { getDistance } from "./utils/GetDistance";
 
 function App() {
   const currentDate: Date = new Date();
@@ -26,10 +28,10 @@ function App() {
     type: ModalTypes.ERROR,
   });
   const [userName, setUserName] = useState<string>(
-    getItem(StorageTypes.NAME) ?? ""
+    getItem(StorageTypes.USER_NAME) ?? ""
   );
   const [files, setFiles] = useState<FileList | null>(
-    getItem(StorageTypes.FILES) ?? null
+    getItem(StorageTypes.FILES) ?? []
   );
   const [homeAddress, setHomeAddress] = useState<Address | undefined>(
     getItem(StorageTypes.HOME_ADDRESS) ?? undefined
@@ -41,6 +43,10 @@ function App() {
     getItem(StorageTypes.WORKDAYS) ?? []
   );
   const [monthData, setMonthData] = useState<WMonth | undefined>(undefined);
+  const [mainWorkplace, setMainWorkplace] = useState<Address | null>(
+    homeAddress
+  );
+  const [distance, setDistance] = useState<number | null>(0);
 
   useEffect(() => {
     if (hasUpdatedDate) {
@@ -52,7 +58,7 @@ function App() {
   }, [hasUpdatedDate]);
 
   const saveData = () => {
-    setItem(StorageTypes.NAME, userName);
+    setItem(StorageTypes.USER_NAME, userName);
     const updatedWorkdays = updateMonthInWorkdays(monthData);
     saveWorkdays(updatedWorkdays);
   };
@@ -66,6 +72,7 @@ function App() {
     setMonthData(updatedMonth);
     const updatedWorkdays = updateMonthInWorkdays(updatedMonth);
     setWorkdayData(updatedWorkdays);
+    updateMainWorkplace();
   };
 
   const updateMonthInWorkdays = (updatedMonth: WMonth) => {
@@ -76,12 +83,67 @@ function App() {
     );
   };
 
+  const addWorkPlaceAddress = (
+    group: {},
+    product: WDay,
+    workPlaceAddress: Address | null
+  ) => {
+    if (workPlaceAddress) {
+      group[workPlaceAddress.addressName] =
+        group[workPlaceAddress.addressName] ?? [];
+      group[workPlaceAddress.addressName].push(product);
+    }
+    return group;
+  };
+
+  const updateMainWorkplace = () => {
+    const groupByLocation = monthData.workdays.reduce(
+      (group: {}, product: WDay) => {
+        const { workPlaceAddressAm, workPlaceAddressPm } = product;
+        group = addWorkPlaceAddress(group, product, workPlaceAddressAm);
+        group = addWorkPlaceAddress(group, product, workPlaceAddressPm);
+        return group;
+      },
+      {}
+    );
+    let newDistance = null;
+    if (Object.values(groupByLocation).length > 0) {
+      const mainWorkplaceId: string = Object.keys(groupByLocation).reduce(
+        (a: string, b: string) =>
+          groupByLocation[a] > groupByLocation[b] ? a : b
+      );
+      const newMainWorkplace =
+        addresses.find((add: Address) => add.addressName === mainWorkplaceId) ??
+        null;
+      setMainWorkplace(newMainWorkplace);
+      if (newMainWorkplace) {
+        newDistance = Number(
+          getDistance(
+            newMainWorkplace.addressCoordinates,
+            homeAddress.addressCoordinates
+          )
+        );
+      }
+    } else {
+      setMainWorkplace(null);
+    }
+    setDistance(newDistance);
+  };
+
   const handleSaveHomeAddress = (address: Address) => {
     setHomeAddress(address);
     let addressList = [address];
     if (addresses.length > 0) {
-      const modifiedAddressList = addresses;
+      let modifiedAddressList = addresses;
       modifiedAddressList[0] = address;
+      modifiedAddressList = modifiedAddressList.map((add) => {
+        return {
+          ...add,
+          distanceFromHome: Number(
+            getDistance(address.addressCoordinates, add.addressCoordinates)
+          ),
+        };
+      });
       addressList = modifiedAddressList;
     }
     setAddresses(addressList);
@@ -188,6 +250,7 @@ function App() {
           files={files}
           setFiles={setFiles}
           saveFiles={(files) => handleSaveFiles(files)}
+          openModal={openModal}
         />
         <AddHomeAddress
           homeAddress={homeAddress}
@@ -209,6 +272,8 @@ function App() {
             data={monthData}
             homeAddress={homeAddress}
             addresses={addresses}
+            setMainWorkplace={setMainWorkplace}
+            setDistance={setDistance}
             selectedDate={selectedDate}
             setMonthData={setMonthData}
             updateDate={(date: Date) => handleUpdatedDate(date)}
@@ -217,7 +282,19 @@ function App() {
             }
           />
         )}
-        <Save saveData={saveData} />
+        <EligibilityMessage mainWorkplace={mainWorkplace} distance={distance} />
+        <Save
+          saveData={saveData}
+          pdfDisabled={
+            !mainWorkplace || (distance && distance > 10) ? true : false
+          }
+          monthData={monthData}
+          userName={userName}
+          addresses={addresses}
+          mainWorkplace={mainWorkplace}
+          distance={distance}
+          onClickSave={saveData}
+        />
       </div>
       <AlertModal
         modalIsOpen={isModalOpen}
