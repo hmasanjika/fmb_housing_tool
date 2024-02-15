@@ -291,6 +291,7 @@ function App() {
           addresses={addresses}
           mainWorkplace={mainWorkplace}
           distance={distance}
+          files={files}
           onClickSave={saveData}
         />
       </div>

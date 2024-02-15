@@ -27,6 +27,7 @@ type Props = {
   addresses: Address[];
   mainWorkplace: Address;
   distance: number | null;
+  files: FileList;
   onClickSave: () => void;
 };
 
@@ -37,6 +38,7 @@ const SubmitAndExportPDF = ({
   addresses,
   mainWorkplace,
   distance,
+  files,
   onClickSave,
 }: Props) => {
   const primaryPurple = "#7500c0";
@@ -359,13 +361,8 @@ const SubmitAndExportPDF = ({
         { maxWidth: doc.internal.pageSize.width - 2 * docMargin, align: "left" }
       );
 
-    const fileInput = document.getElementById(
-      "uploadedFiles"
-    ) as HTMLInputElement;
-    const uploadedFiles: FileList = fileInput?.files;
-
-    if (uploadedFiles && Array.from(uploadedFiles).length > 0) {
-      await mergeFilesAndDownload(doc, uploadedFiles, pdfName);
+    if (files && Array.from(files).length > 0) {
+      await mergeFilesAndDownload(doc, files, pdfName);
     } else {
       /** FOOTER **/
       // TO DO: Find a way to add the page number to all pages when additional files are uploaded
@@ -382,7 +379,6 @@ const SubmitAndExportPDF = ({
       //     doc.internal.pageSize.getHeight() - 10
       //   );
       // }
-
       doc.save(`${pdfName}.pdf`);
     }
   };
